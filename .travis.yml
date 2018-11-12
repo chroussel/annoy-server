@@ -1,0 +1,31 @@
+language: rust
+rust:
+  - nightly
+cache: cargo
+sudo: required
+
+before_script:
+  - export PATH=$HOME/.cargo/bin:$PATH
+  - cargo install cargo-kcov || echo "Cargo kcov already installed"
+
+script:
+  - cargo build --verbose --all
+  - cargo test --verbose --all
+  - rustdoc --test readme.md -L target
+
+after_success:
+  - cargo kcov --all --verbose --no-clean-rebuild --coveralls
+
+notifications:
+  email:
+    on_success: never
+addons:
+  apt:
+    packages:
+      - cmake
+      - libgtest-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev
+    sources:
+      - kalakris-cmake
