@@ -1,6 +1,5 @@
 [workspace]
 
 members = [
-    "annoy-rs", 
-    "knn-serving"
+    "annoy_rs",
 ]

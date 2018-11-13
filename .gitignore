@@ -10,4 +10,8 @@ Cargo.lock
 **/*.rs.bk
 
 /target
+build/
+*.a
+.vscode
+*.tar.gz
 **/*.rs.bk
