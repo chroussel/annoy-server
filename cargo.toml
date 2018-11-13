@@ -2,4 +2,5 @@
 
 members = [
     "annoy_rs",
+    "knn_serving"
 ]

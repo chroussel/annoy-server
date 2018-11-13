@@ -1,8 +1,9 @@
 [package]
-name = "knn-serving"
+name = "knn_serving"
 version = "0.1.0"
 authors = ["Charles Roussel <c.roussel@criteo.com>"]
 edition = "2018"
 
 [dependencies]
 annoy-rs = { path = "../annoy_rs"}
+rand = "0.5"

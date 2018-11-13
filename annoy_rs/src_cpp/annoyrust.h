@@ -6,7 +6,6 @@
 
 #include "annoylib.h"
 
-EXTERNC typedef void *rust_annoy_index_t;
 EXTERNC struct f_vector;
 EXTERNC struct i_vector;
 
@@ -14,6 +13,15 @@ EXTERNC i_vector *i_vector_init();
 EXTERNC f_vector *f_vector_init();
 EXTERNC void i_vector_destroy(i_vector *vec);
 EXTERNC void f_vector_destroy(f_vector *vec);
+EXTERNC int32_t *i_vector_data(i_vector *vec);
+EXTERNC float *f_vector_data(f_vector *vec);
+EXTERNC size_t f_vector_size(f_vector *vec);
+EXTERNC size_t i_vector_size(i_vector *vec);
+EXTERNC void i_vector_assign(i_vector *vec, int32_t *raw, size_t len);
+EXTERNC void f_vector_assign(f_vector *vec, float *raw, size_t len);
+
+EXTERNC typedef void *rust_annoy_index_t;
+
 EXTERNC rust_annoy_index_t rust_annoy_index_angular_init(int f);
 EXTERNC rust_annoy_index_t rust_annoy_index_euclidian_init(int f);
 EXTERNC rust_annoy_index_t rust_annoy_index_manhattan_init(int f);
