@@ -4,10 +4,13 @@ rust:
 cache: cargo
 sudo: required
 
+install:
+  - ./build_utils/annoy.sh
+  - ./build_utils/kcov.sh
+
 before_script:
   - export PATH=$HOME/.cargo/bin:$PATH
   - cargo install cargo-kcov || echo "Cargo kcov already installed"
-  - ./build_utils/annoy.sh
 
 script:
   - cargo build --verbose --all
