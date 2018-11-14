@@ -1,6 +1,9 @@
 extern crate libc;
 
+mod vector;
+
 pub mod annoy;
+
 pub mod native {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
