@@ -7,6 +7,7 @@ sudo: required
 before_script:
   - export PATH=$HOME/.cargo/bin:$PATH
   - cargo install cargo-kcov || echo "Cargo kcov already installed"
+  - ./build_utils/annoy.sh
 
 script:
   - cargo build --verbose --all
@@ -23,7 +24,6 @@ addons:
   apt:
     packages:
       - cmake
-      - libgtest-dev
       - libelf-dev
       - libdw-dev
       - binutils-dev

@@ -11,7 +11,7 @@ use std::collections::HashSet;
 use std::time::SystemTime;
 
 fn main() {
-    let n: i32 = 100000;
+    let n: i32 = 1000;
     const f: usize = 40;
 
     let mut rng = thread_rng();
@@ -22,9 +22,9 @@ fn main() {
         indexBuilder.add_item(i, arr.as_slice())
     }
 
-    let index = indexBuilder.build(Some(2 * f as i32));
+    let index = indexBuilder.build(Some(400 as i32));
 
-    let limits = &[10, 100, 1000, 10000];
+    let limits = &[20000];
     let k = 10;
     let mut prec_sum = HashMap::new();
     let prec_n = 1000;

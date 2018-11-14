@@ -6,7 +6,7 @@ use std::path::PathBuf;
 fn main() {
     cc::Build::new()
         .cpp(true)
-        .include("src_cpp")
+        .include("../build/include")
         .file("src_cpp/annoyrust.cpp")
         .flag("-Wno-unused-parameter")
         .flag("-Wno-deprecated")
@@ -27,7 +27,7 @@ fn main() {
         .clang_arg(r"-lstdc++")
         .layout_tests(false)
         .derive_copy(false)
-        .clang_arg(r"-Iinclude")
+        .clang_arg(r"-I../build/include")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
