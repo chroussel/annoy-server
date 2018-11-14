@@ -6,11 +6,11 @@ sudo: required
 
 install:
   - ./build_utils/annoy.sh
-  - ./build_utils/kcov.sh
 
 before_script:
   - export PATH=$HOME/.cargo/bin:$PATH
   - cargo install cargo-kcov || echo "Cargo kcov already installed"
+  - cargo kcov --print-install-kcov-sh | sh
 
 script:
   - cargo build --verbose --all
@@ -27,8 +27,11 @@ addons:
   apt:
     packages:
       - cmake
+      - g++
+      - pkg-config
+      - jq
+      - libcurl4-openssl-dev
       - libelf-dev
       - libdw-dev
       - binutils-dev
-    sources:
-      - kalakris-cmake
+      - libiberty-dev
