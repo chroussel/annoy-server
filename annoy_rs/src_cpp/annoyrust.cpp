@@ -108,13 +108,7 @@ void rust_annoy_index_build(rust_annoy_index_t self, int q)
     typed_ptr->build(q);
 }
 
-bool rust_annoy_index_save1(rust_annoy_index_t self, const char *filename)
-{
-    annoy_ptr_t typed_ptr = cast(self);
-    return typed_ptr->save(filename);
-}
-
-bool rust_annoy_index_save2(rust_annoy_index_t self, const char *filename, bool prefault)
+bool rust_annoy_index_save(rust_annoy_index_t self, const char *filename, bool prefault)
 {
     annoy_ptr_t typed_ptr = cast(self);
     return typed_ptr->save(filename, prefault);
@@ -126,12 +120,7 @@ void rust_annoy_index_unload(rust_annoy_index_t self)
     typed_ptr->unload();
 }
 
-bool rust_annoy_index_load1(rust_annoy_index_t self, const char *filename)
-{
-    annoy_ptr_t typed_ptr = cast(self);
-    return typed_ptr->load(filename);
-}
-bool rust_annoy_index_load2(rust_annoy_index_t self, const char *filename, bool prefault)
+bool rust_annoy_index_load(rust_annoy_index_t self, const char *filename, bool prefault)
 {
     annoy_ptr_t typed_ptr = cast(self);
     return typed_ptr->load(filename, prefault);

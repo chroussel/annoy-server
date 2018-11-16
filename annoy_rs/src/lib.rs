@@ -1,12 +1,13 @@
 extern crate libc;
 
+pub mod annoy;
+pub mod err;
 mod vector;
 
-pub mod annoy;
-
-pub mod native {
+mod native {
     #![allow(non_upper_case_globals)]
     #![allow(non_camel_case_types)]
     #![allow(non_snake_case)]
+    #![allow(dead_code)]
     include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 }

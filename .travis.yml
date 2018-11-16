@@ -20,6 +20,20 @@ script:
 after_success:
   - cargo kcov --all --verbose --no-clean-rebuild --coveralls
 
+before_deploy:
+  - cargo doc
+  - mkdir public
+  - cp -r target/doc public/
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  local-dir: public
+  keep-history: true
+  on:
+    branch: master
+
 notifications:
   email:
     on_success: never

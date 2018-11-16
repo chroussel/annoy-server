@@ -19,7 +19,7 @@ fn main() {
 
     for i in 0..n {
         let mut arr: Vec<f32> = rng.sample_iter(&Standard).take(f).collect();
-        indexBuilder.add_item(i, arr.as_slice())
+        indexBuilder.add_item(arr.as_slice());
     }
 
     let index = indexBuilder.build(Some(400 as i32));
