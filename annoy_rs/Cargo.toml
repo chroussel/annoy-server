@@ -9,3 +9,9 @@ libc= "0.2"
 [build-dependencies]
 cc = "1.0"
 bindgen = "0.43"
+
+[dev-dependencies]
+rand = "0.6"
+
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"

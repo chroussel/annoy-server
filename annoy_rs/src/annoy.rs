@@ -1,16 +1,25 @@
-#![crate_name = "annoy"]
-
 use super::native;
 use super::vector;
 use err;
 use std::ffi::CString;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+
+pub enum Distance {
+    Angular,
+    Euclidean,
+    Manhattan,
+}
 
 pub struct AnnoyIndexRaw(native::rust_annoy_index_t);
 
 impl AnnoyIndexRaw {
-    fn new(dimension: i32) -> AnnoyIndexRaw {
-        let raw = unsafe { native::rust_annoy_index_angular_init(dimension) };
+    fn new(dimension: i32, dis: &Distance) -> AnnoyIndexRaw {
+        let raw = match dis {
+            Distance::Angular => unsafe { native::rust_annoy_index_angular_init(dimension) },
+            Distance::Euclidean => unsafe { native::rust_annoy_index_euclidian_init(dimension) },
+            Distance::Manhattan => unsafe { native::rust_annoy_index_manhattan_init(dimension) },
+        };
+
         AnnoyIndexRaw(raw)
     }
 }
@@ -23,27 +32,29 @@ impl Drop for AnnoyIndexRaw {
 
 pub struct AnnoyIndexBuilder {
     dimension: i32,
+    distance: Distance,
     raw: AnnoyIndexRaw,
     item_count: i32,
 }
 
 pub struct AnnoyIndex {
     dimension: i32,
+    distance: Distance,
     tree_count: Option<i32>,
     raw: AnnoyIndexRaw,
-    item_count: i32,
 }
 
 impl AnnoyIndexBuilder {
     /// Create a builder for index with vector of dimension [dimension]
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(10);
+    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(10, Distance::Angular);
     /// ```
 
-    pub fn new(dimension: i32) -> AnnoyIndexBuilder {
-        let raw = AnnoyIndexRaw::new(dimension);
+    pub fn new(dimension: i32, distance: Distance) -> AnnoyIndexBuilder {
+        let raw = AnnoyIndexRaw::new(dimension, &distance);
         AnnoyIndexBuilder {
             dimension,
+            distance,
             raw,
             item_count: -1,
         }
@@ -52,7 +63,7 @@ impl AnnoyIndexBuilder {
     /// Add a vector to the index
     /// returns item index
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[0.0, 1.0]);
     /// let item_index = builder.add_item(&[0.0, 1.0]);
     /// assert_eq!(item_index, 1);
@@ -67,7 +78,7 @@ impl AnnoyIndexBuilder {
     /// If None is specified it creates 2 * [item_count] trees
     ///
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[0.0, 1.0]);
     /// builder.add_item(&[0.0, 1.0]);
     /// let index = builder.build(Some(2));
@@ -75,27 +86,32 @@ impl AnnoyIndexBuilder {
     pub fn build(self, n_tree: Option<i32>) -> AnnoyIndex {
         unsafe { native::rust_annoy_index_build(self.raw.0, n_tree.unwrap_or(-1)) };
         AnnoyIndex {
+            distance: self.distance,
             dimension: self.dimension,
             raw: self.raw,
             tree_count: n_tree,
-            item_count: self.item_count,
         }
     }
 
     /// Return the dimension of the index which was given at creation
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
     /// assert_eq!(builder.dimension(), 2)
     /// ```
     pub fn dimension(&self) -> i32 {
         self.dimension
     }
+
+    pub fn distance(&self) -> &Distance {
+        &self.distance
+    }
 }
 
 impl AnnoyIndex {
-    /// Return the dimension of the index which was given at built
+    /// Return the dimension used to build the index
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// let index = builder.build(None);
     /// assert_eq!(index.dimension(), 2)
     /// ```
@@ -103,9 +119,21 @@ impl AnnoyIndex {
         self.dimension
     }
 
+    /// Return the distance function used to compute the index
+    /// ```
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
+    /// let index = builder.build(None);
+    /// assert_eq!(index.distance(), Distance::Angular)
+    /// ```
+    pub fn distance(&self) -> &Distance {
+        &self.distance
+    }
+
     /// Return the number of tree used to build the index
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2,  Distance::Angular);
     /// let index = builder.build(Some(123));
     /// assert_eq!(index.tree_count(), Some(123))
     /// ```
@@ -118,7 +146,8 @@ impl AnnoyIndex {
     /// It return 2 array containing results and distance to the item.
     ///
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[1.0, 0.0, 0.0]);
     /// builder.add_item(&[0.0, 1.0, 0.0]);
     /// builder.add_item(&[0.0, 0.0, 1.0]);
@@ -158,7 +187,8 @@ impl AnnoyIndex {
     /// It return 2 array containing results and distance to the item.
     ///
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[1.0, 0.0, 0.0]);
     /// builder.add_item(&[0.0, 1.0, 0.0]);
     /// builder.add_item(&[0.0, 0.0, 1.0]);
@@ -193,11 +223,15 @@ impl AnnoyIndex {
         )
     }
 
-    pub fn save2(&self, path: PathBuf, loadIntoRam: bool) -> Result<(), err::Error> {
-        let path_str = path.as_os_str().to_str().ok_or(err::Error::InvalidPath)?;
+    pub fn save2<P: AsRef<Path>>(&self, path: P, load_into_ram: bool) -> Result<(), err::Error> {
+        let path_str = path
+            .as_ref()
+            .as_os_str()
+            .to_str()
+            .ok_or(err::Error::InvalidPath)?;
 
         let cs = CString::new(path_str).unwrap();
-        unsafe { native::rust_annoy_index_save(self.raw.0, cs.as_ptr(), loadIntoRam) };
+        unsafe { native::rust_annoy_index_save(self.raw.0, cs.as_ptr(), load_into_ram) };
         Ok(())
     }
 
@@ -205,11 +239,15 @@ impl AnnoyIndex {
         self.save2(path, false)
     }
 
-    pub fn load2(&self, path: PathBuf, loadIntoRam: bool) -> Result<(), err::Error> {
-        let path_str = path.as_os_str().to_str().ok_or(err::Error::InvalidPath)?;
+    pub fn load2<P: AsRef<Path>>(&self, path: P, load_into_ram: bool) -> Result<(), err::Error> {
+        let path_str = path
+            .as_ref()
+            .as_os_str()
+            .to_str()
+            .ok_or(err::Error::InvalidPath)?;
 
         let cs = CString::new(path_str).unwrap();
-        unsafe { native::rust_annoy_index_load(self.raw.0, cs.as_ptr(), loadIntoRam) };
+        unsafe { native::rust_annoy_index_load(self.raw.0, cs.as_ptr(), load_into_ram) };
         Ok(())
     }
 
@@ -219,6 +257,10 @@ impl AnnoyIndex {
 
     pub fn len(&self) -> i32 {
         unsafe { native::rust_annoy_index_get_n_item(self.raw.0) }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() != 0
     }
 
     pub fn get_item(&self, item: i32) -> Option<Vec<f32>> {
@@ -243,10 +285,16 @@ impl AnnoyIndex {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::distributions::Standard;
+    use rand::prelude::*;
+    use rand::Rng;
+    use std::collections::HashMap;
+    use std::collections::HashSet;
+    use std::time::SystemTime;
 
     #[test]
     fn simple_test() {
-        let mut a = AnnoyIndexBuilder::new(3);
+        let mut a = AnnoyIndexBuilder::new(3, Distance::Angular);
         a.add_item(&[1.0, 0.0, 0.0]);
         a.add_item(&[0.0, 1.0, 0.0]);
         a.add_item(&[0.0, 0.0, 1.0]);
@@ -259,7 +307,7 @@ mod tests {
 
     #[test]
     fn mmap_test() {
-        let mut a = AnnoyIndexBuilder::new(3);
+        let mut a = AnnoyIndexBuilder::new(3, Distance::Angular);
         a.add_item(&[1.0, 0.0, 0.0]);
         a.add_item(&[0.0, 1.0, 0.0]);
         a.add_item(&[0.0, 0.0, 1.0]);
@@ -268,21 +316,18 @@ mod tests {
 
         index.save(PathBuf::from("test.tree")).unwrap();
 
-        let index2 = AnnoyIndexBuilder::new(3).build(None);
+        let index2 = AnnoyIndexBuilder::new(3, Distance::Angular).build(None);
         index2.load(PathBuf::from("test.tree")).unwrap();
 
-        println!("{:?}", index2.get_nns_by_item(0, 100, None));
-        println!(
-            "{:?}",
-            index2.get_nns_by_vector(&[1.0, 0.5, 0.5], 100, None)
-        );
+        println!("{:?}", index2.get_nns_by_item(0, 2, None));
+        println!("{:?}", index2.get_nns_by_vector(&[1.0, 0.5, 0.5], 2, None));
     }
 
     #[test]
     fn get_n_item_test() {
-        let mut a = AnnoyIndexBuilder::new(3);
+        let mut a = AnnoyIndexBuilder::new(3, Distance::Angular);
         let count = 1123;
-        for i in 0..count {
+        for _i in 0..count {
             a.add_item(&[1.0, 0.0, 0.0]);
         }
         let index = a.build(None);
@@ -291,7 +336,7 @@ mod tests {
 
     #[test]
     fn get_item_test() {
-        let mut a = AnnoyIndexBuilder::new(3);
+        let mut a = AnnoyIndexBuilder::new(3, Distance::Angular);
         a.add_item(&[1.0, 0.0, 0.0]);
         a.add_item(&[0.0, 1.0, 0.0]);
         a.add_item(&[0.0, 0.0, 1.0]);
@@ -300,5 +345,62 @@ mod tests {
         assert_eq!(index.get_item(1), Some(vec![0.0, 1.0, 0.0]));
         assert_eq!(index.get_item(3), None);
         assert_eq!(index.get_item(5), None);
+    }
+
+    #[test]
+    fn precision_test() {
+        let n: i32 = 1000;
+        const F: usize = 40;
+
+        let mut rng = thread_rng();
+        let mut index_builder = AnnoyIndexBuilder::new(F as i32, Distance::Angular);
+
+        for _i in 0..n {
+            let mut arr: Vec<f32> = rng.sample_iter(&Standard).take(F).collect();
+            index_builder.add_item(arr.as_slice());
+        }
+
+        let index = index_builder.build(Some(400 as i32));
+
+        let limits = &[20000];
+        let k = 10;
+        let mut prec_sum = HashMap::new();
+        let prec_n = 1000;
+        let mut time_sum = HashMap::new();
+        for limit in limits.iter() {
+            prec_sum.insert(limit, 0.0);
+            time_sum.insert(limit, 0);
+        }
+        for _i in 0..prec_n {
+            let j = rng.gen_range(0, n);
+            let (closest, _) = index.get_nns_by_item(j, k, Some(n));
+            let closest_set: HashSet<_> = closest.iter().collect();
+            for limit in limits.iter() {
+                let t0 = SystemTime::now();
+                let (toplist, _) = index.get_nns_by_item(j, k, Some(*limit));
+                let T = t0.elapsed().unwrap();
+                let top_list_set: HashSet<_> = toplist.iter().collect();
+
+                let found = closest_set.intersection(&top_list_set).count();
+                let hitrate = 1.0 * (found as f32) / (k as f32);
+
+                if let Some(value) = prec_sum.get_mut(limit) {
+                    *value += hitrate;
+                }
+
+                if let Some(value) = time_sum.get_mut(limit) {
+                    *value += T.as_nanos();
+                }
+            }
+        }
+
+        for limit in limits.iter() {
+            let prec = 100.0 * prec_sum.get(limit).unwrap() / (prec_n + 1) as f32;
+            let avg_time = time_sum.get(limit).unwrap() / (prec_n + 1);
+            println!(
+                "limit: {:>6} - precision: {:.6}% - avg time: {} ns",
+                limit, prec, avg_time
+            )
+        }
     }
 }

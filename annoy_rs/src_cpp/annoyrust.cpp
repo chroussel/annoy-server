@@ -46,21 +46,11 @@ float *f_vector_data(f_vector *vec)
     return vec->vec->data();
 }
 
-void f_vector_assign(i_vector *vec, float *raw, size_t len)
-{
-    vec->vec->assign(raw, raw + len);
-}
-
 i_vector *i_vector_init()
 {
     i_vector *i = new i_vector();
     i->vec = new vector<int32_t>();
     return i;
-}
-
-void i_vector_assign(i_vector *vec, int32_t *raw, size_t len)
-{
-    vec->vec->assign(raw, raw + len);
 }
 
 int32_t *i_vector_data(i_vector *vec)

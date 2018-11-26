@@ -2,8 +2,24 @@
 name = "knn_serving"
 version = "0.1.0"
 authors = ["Charles Roussel <c.roussel@criteo.com>"]
-edition = "2018"
 
 [dependencies]
-annoy-rs = { path = "../annoy_rs"}
-rand = "0.5"
+annoy-rs = { path = "../annoy_rs" }
+capnp = "0.9"
+capnp-rpc = "0.9"
+capnp-futures = "0.9"
+futures = "0.1"
+tokio-io = "0.1"
+tokio-core = "0.1"
+tokio-curl = "0.1"
+tokio-threadpool = "0.1"
+log = "0.4"
+env_logger = "0.6"
+curl = "0.4"
+rand = "0.6"
+
+[build-dependencies]
+capnpc = "0.9"
+
+[target.x86_64-unknown-linux-musl]
+linker = "x86_64-linux-musl-gcc"

@@ -1,7 +1,12 @@
+#![feature(duration_as_u128)]
+#![feature(trait_alias)]
 extern crate libc;
+#[cfg(test)]
+extern crate rand;
 
 pub mod annoy;
 pub mod err;
+pub mod idmapping;
 mod vector;
 
 mod native {

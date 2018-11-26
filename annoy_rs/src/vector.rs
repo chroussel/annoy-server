@@ -21,11 +21,6 @@ impl IntVector {
         let raw_vec = unsafe { slice::from_raw_parts(raw_data, raw_size) };
         raw_vec.to_vec()
     }
-
-    pub fn assign(&mut self, slice: &mut [i32]) {
-        let raw_ptr = slice.as_mut_ptr();
-        unsafe { native::i_vector_assign(self.raw, raw_ptr, slice.len()) };
-    }
 }
 
 impl Drop for IntVector {
@@ -53,11 +48,6 @@ impl FloatVector {
         let raw_size = unsafe { native::f_vector_size(self.raw) };
         let raw_vec = unsafe { slice::from_raw_parts(raw_data, raw_size) };
         raw_vec.to_vec()
-    }
-
-    fn assign(&mut self, slice: &mut [f32]) {
-        let raw_ptr = slice.as_mut_ptr();
-        unsafe { native::f_vector_assign(self.raw, raw_ptr, slice.len()) };
     }
 }
 
