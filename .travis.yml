@@ -5,6 +5,7 @@ cache: cargo
 sudo: required
 
 install:
+  - ./build_utils/capnp.sh
   - ./build_utils/annoy.sh
 
 before_script:
@@ -49,4 +50,3 @@ addons:
       - libdw-dev
       - binutils-dev
       - libiberty-dev
-      - capnproto
