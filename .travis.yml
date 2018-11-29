@@ -7,13 +7,13 @@ sudo: required
 install:
   - export CC=gcc-7
   - export CXX=g++-7
+  - ./build_utils/kcov.sh
   - ./build_utils/capnp.sh
   - ./build_utils/annoy.sh
 
 before_script:
   - export PATH=$HOME/.cargo/bin:$PATH
   - cargo install cargo-kcov || echo "Cargo kcov already installed"
-  - cargo kcov --print-install-kcov-sh | sh
 
 script:
   - cargo build --verbose --all
