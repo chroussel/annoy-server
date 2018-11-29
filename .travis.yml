@@ -19,6 +19,7 @@ script:
   - cargo build --verbose --all
   - cargo test --verbose --all
   - rustdoc --test readme.md -L target
+  - cargo build --release
 
 after_success:
   - cargo kcov --all --verbose --no-clean-rebuild --coveralls
@@ -27,15 +28,24 @@ before_deploy:
   - cargo doc
   - mkdir public
   - cp -r target/doc public/
+  - mkdir dist/
+  - cp -r target/release/knn_serving dist/.
+  - tar cvf dist.tar.gz dist/
 
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  local-dir: public
-  keep-history: true
-  on:
-    branch: master
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: public
+    keep-history: true
+    on:
+      branch: master
+  - provider: releases
+    skip-cleanup: true
+    api_key:
+      secure: $GITHUB_TOKEN
+    file: dist.tar.gz
+    draft: true
 
 notifications:
   email:
