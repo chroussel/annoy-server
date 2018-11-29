@@ -347,6 +347,10 @@ mod tests {
         assert_eq!(index.get_item(5), None);
     }
 
+    struct A {
+        x: i32,
+    }
+
     #[test]
     fn precision_test() {
         let n: i32 = 1000;
@@ -361,7 +365,6 @@ mod tests {
         }
 
         let index = index_builder.build(Some(400 as i32));
-
         let limits = &[20000];
         let k = 10;
         let mut prec_sum = HashMap::new();

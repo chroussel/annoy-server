@@ -1,7 +1,7 @@
 import capnp
 
 capnp.remove_import_hook()
-knn_capnp = capnp.load('../knn_serving/src/service.capnp')
+knn_capnp = capnp.load('../knn_serving_api/src/service.capnp')
 client = capnp.TwoPartyClient("localhost:8080")
 service = client.bootstrap().cast_as(knn_capnp.KnnService)
 

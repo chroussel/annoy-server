@@ -3,7 +3,7 @@ import capnp
 import time
 
 capnp.remove_import_hook()
-knn_capnp = capnp.load('../knn_serving/src/service.capnp')
+knn_capnp = capnp.load('../knn_serving_api/src/service.capnp')
 
 
 def fire_event(start_time, name, r):

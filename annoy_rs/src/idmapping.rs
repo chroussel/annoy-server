@@ -95,6 +95,7 @@ where
         let mapping_file: File = File::open(mapping_file_path)?;
         let buf = BufReader::new(mapping_file);
         let mut index_map = HashMap::new();
+
         let mut reverse_index_map = HashMap::new();
 
         for (index, line) in buf.lines().enumerate() {

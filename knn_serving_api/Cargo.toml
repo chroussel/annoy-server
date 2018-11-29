@@ -1,14 +1,12 @@
 [package]
-name = "annoy_rs"
+name = "knn_serving_api"
 version = "0.1.0"
 authors = ["Charles Roussel <c.roussel@criteo.com>"]
 
 [dependencies]
-libc= "0.2"
+capnp = "0.9"
+capnp-rpc = "0.9"
+capnp-futures = "0.9"
 
 [build-dependencies]
-cc = "1.0"
-bindgen = "0.43"
-
-[dev-dependencies]
-rand = "0.6"
+capnpc = "0.9"

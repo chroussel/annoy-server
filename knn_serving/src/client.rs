@@ -2,7 +2,7 @@ use capnp::capability::{Request, Response};
 use capnp::{primitive_list, struct_list};
 use capnp_rpc::{rpc_twoparty_capnp, twoparty, RpcSystem};
 use futures::Future;
-use service_capnp::{knn_request, knn_response, knn_service};
+use knn_serving_api::service_capnp::{knn_request, knn_response, knn_service};
 use std::net::ToSocketAddrs;
 use tokio_core;
 use tokio_io::AsyncRead;

@@ -4,7 +4,9 @@ version = "0.1.0"
 authors = ["Charles Roussel <c.roussel@criteo.com>"]
 
 [dependencies]
-annoy-rs = { path = "../annoy_rs" }
+annoy_rs = { path = "../annoy_rs" }
+hyper = "0.12"
+knn_serving_api = {path="../knn_serving_api"}
 capnp = "0.9"
 capnp-rpc = "0.9"
 capnp-futures = "0.9"
@@ -13,13 +15,16 @@ tokio-io = "0.1"
 tokio-core = "0.1"
 tokio-curl = "0.1"
 tokio-threadpool = "0.1"
+tokio-current-thread = "0.1"
+tokio-executor = "0.1"
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
 log = "0.4"
 env_logger = "0.6"
 curl = "0.4"
+bytes = "0.4"
 rand = "0.6"
 
 [build-dependencies]
 capnpc = "0.9"
-
-[target.x86_64-unknown-linux-musl]
-linker = "x86_64-linux-musl-gcc"

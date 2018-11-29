@@ -2,5 +2,6 @@
 
 members = [
     "annoy_rs",
+    "knn_serving_api",
     "knn_serving"
 ]

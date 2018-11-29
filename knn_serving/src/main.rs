@@ -7,20 +7,27 @@ extern crate log;
 extern crate futures;
 #[macro_use]
 extern crate capnp_rpc;
+extern crate bytes;
+extern crate hyper;
+extern crate knn_serving_api;
 extern crate rand;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
 extern crate tokio_core;
 extern crate tokio_curl;
+extern crate tokio_current_thread;
+extern crate tokio_executor;
 extern crate tokio_io;
 extern crate tokio_threadpool;
 
 mod client;
+mod err;
 mod server;
+mod service;
 mod util;
 
 //mod service_capnp;
-pub mod service_capnp {
-    include!(concat!(env!("OUT_DIR"), "/service_capnp.rs"));
-}
 
 fn main() {
     let env = env_logger::Env::default().filter_or(env_logger::DEFAULT_FILTER_ENV, "info");
@@ -32,7 +39,7 @@ fn main() {
         match &args[1][..] {
             "server" => return server::main(),
             "client" => return client::main(),
-            _ => (),
+            _ => println!("Argument missing"),
         }
     }
 }
