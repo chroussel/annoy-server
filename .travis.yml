@@ -42,6 +42,8 @@ notifications:
     on_success: never
 addons:
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     packages:
       - cmake
       - g++-7
