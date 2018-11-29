@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["annoy",""],["err",""]]});
+initSidebarItems({"mod":[["annoy",""],["err",""],["idmapping",""]]});

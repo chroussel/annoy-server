@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["_private",""],["load_params",""],["load_results",""],["search_params",""],["search_results",""]],"struct":[["Client",""],["Owned",""],["ServerDispatch",""],["ToClient",""]],"trait":[["Server",""]],"type":[["LoadParams",""],["LoadResults",""],["SearchParams",""],["SearchResults",""]]});

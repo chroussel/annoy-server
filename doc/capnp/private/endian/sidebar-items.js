@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["WireValue","A value casted directly from a little-endian byte buffer. On big-endian processors, the bytes of the value need to be swapped upon reading and writing."]],"trait":[["Endian","Something that can appear in a `WireValue`."]]});

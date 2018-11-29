@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["AnnoyIndex",""],["AnnoyIndexBuilder",""],["AnnoyIndexRaw",""]]});
+initSidebarItems({"enum":[["Distance",""]],"struct":[["AnnoyIndex",""],["AnnoyIndexBuilder",""],["AnnoyIndexRaw",""]]});
