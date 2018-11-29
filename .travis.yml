@@ -1,11 +1,7 @@
 language: rust
 rust:
   - nightly
-cache:
-  directories:
-    - $HOME/.cargo
-    - $TRAVIS_BUILD_DIR/target
-    - build
+cache: cargo
 sudo: required
 
 install:
