@@ -5,6 +5,8 @@ cache: cargo
 sudo: required
 
 install:
+  - export CC=gcc-7
+  - export CXX=g++-7
   - ./build_utils/capnp.sh
   - ./build_utils/annoy.sh
 
@@ -42,7 +44,7 @@ addons:
   apt:
     packages:
       - cmake
-      - g++
+      - g++-7
       - pkg-config
       - jq
       - libcurl4-openssl-dev
