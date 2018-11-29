@@ -4,6 +4,7 @@ use err;
 use std::ffi::CString;
 use std::path::{Path, PathBuf};
 
+#[derive(Debug, PartialEq)]
 pub enum Distance {
     Angular,
     Euclidean,
@@ -47,7 +48,8 @@ pub struct AnnoyIndex {
 impl AnnoyIndexBuilder {
     /// Create a builder for index with vector of dimension [dimension]
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(10, Distance::Angular);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(10, Distance::Angular);
     /// ```
 
     pub fn new(dimension: i32, distance: Distance) -> AnnoyIndexBuilder {
@@ -63,7 +65,8 @@ impl AnnoyIndexBuilder {
     /// Add a vector to the index
     /// returns item index
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[0.0, 1.0]);
     /// let item_index = builder.add_item(&[0.0, 1.0]);
     /// assert_eq!(item_index, 1);
@@ -78,7 +81,8 @@ impl AnnoyIndexBuilder {
     /// If None is specified it creates 2 * [item_count] trees
     ///
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// builder.add_item(&[0.0, 1.0]);
     /// builder.add_item(&[0.0, 1.0]);
     /// let index = builder.build(Some(2));
@@ -95,7 +99,8 @@ impl AnnoyIndexBuilder {
 
     /// Return the dimension of the index which was given at creation
     /// ```
-    /// let mut builder = annoy_rs::annoy::AnnoyIndexBuilder::new(2, Distance::Angular);
+    /// use annoy_rs::annoy::*;
+    /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// assert_eq!(builder.dimension(), 2)
     /// ```
     pub fn dimension(&self) -> i32 {
@@ -124,7 +129,7 @@ impl AnnoyIndex {
     /// use annoy_rs::annoy::*;
     /// let mut builder = AnnoyIndexBuilder::new(2, Distance::Angular);
     /// let index = builder.build(None);
-    /// assert_eq!(index.distance(), Distance::Angular)
+    /// assert_eq!(index.distance(), &Distance::Angular)
     /// ```
     pub fn distance(&self) -> &Distance {
         &self.distance
