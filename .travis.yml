@@ -5,8 +5,8 @@ cache: cargo
 sudo: required
 
 install:
-  - export CC=gcc-7
-  - export CXX=g++-7
+  - export CC=gcc-5
+  - export CXX=g++-5
   - ./build_utils/kcov.sh
   - ./build_utils/capnp.sh
   - ./build_utils/annoy.sh
