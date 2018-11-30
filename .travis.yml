@@ -5,8 +5,8 @@ cache: cargo
 sudo: required
 
 install:
-  - export CC=gcc-5
-  - export CXX=g++-5
+  - export CC=gcc-4.9
+  - export CXX=g++-4.9
   - ./build_utils/kcov.sh
   - ./build_utils/capnp.sh
   - ./build_utils/annoy.sh
@@ -19,7 +19,7 @@ script:
   - cargo build --verbose --all
   - cargo test --verbose --all
   - rustdoc --test readme.md -L target
-  - cargo build --release
+  - cargo build --target x86_64-unknown-linux-musl --release
 
 after_success:
   - cargo kcov --all --verbose --no-clean-rebuild --coveralls
