@@ -26,9 +26,9 @@ after_success:
 
 before_deploy:
   - cargo doc
-  - mkdir public
+  - mkdir -p public
   - cp -r target/doc public/
-  - mkdir dist/
+  - mkdir -p dist/
   - cp -r target/release/knn_serving dist/.
   - tar cvf dist.tar.gz dist/
 
