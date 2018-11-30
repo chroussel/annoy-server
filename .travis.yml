@@ -56,7 +56,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - cmake
-      - g++-5
+      - g++-4.9
       - pkg-config
       - jq
       - libcurl4-openssl-dev
