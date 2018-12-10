@@ -9,6 +9,7 @@ pub struct MappingIndexBuilder<T>
 where
     T: std::cmp::Eq + std::hash::Hash + Copy + std::str::FromStr,
 {
+    index_id: String,
     index: AnnoyIndexBuilder,
     map: HashMap<T, i32>,
     inverse_map: HashMap<i32, T>,
@@ -18,6 +19,7 @@ pub struct MappingIndex<T>
 where
     T: std::cmp::Eq + std::hash::Hash + Copy + std::str::FromStr,
 {
+    index_id: String,
     index: AnnoyIndex,
     map: HashMap<T, i32>,
     inverse_map: HashMap<i32, T>,
@@ -27,11 +29,12 @@ impl<T> MappingIndexBuilder<T>
 where
     T: std::cmp::Eq + std::hash::Hash + Copy + std::str::FromStr,
 {
-    pub fn new(dimension: i32, distance: Distance) -> Self {
+    pub fn new(index_id: &str, dimension: i32, distance: Distance) -> Self {
         let index = AnnoyIndexBuilder::new(dimension, distance);
         let map = HashMap::default();
         let inverse_map = HashMap::default();
         MappingIndexBuilder {
+            index_id: index_id.to_owned(),
             index,
             map,
             inverse_map,
@@ -51,6 +54,7 @@ where
 
     pub fn build(self, n_tree: Option<i32>) -> MappingIndex<T> {
         MappingIndex {
+            index_id: self.index_id,
             index: self.index.build(n_tree),
             map: self.map,
             inverse_map: self.inverse_map,
@@ -82,7 +86,12 @@ where
         self.index.dimension()
     }
 
+    pub fn len(&self) -> usize {
+        self.map.len()
+    }
+
     pub fn load<P: AsRef<Path>>(
+        index_id: &str,
         index_file_path: P,
         mapping_file_path: P,
         dimension: i32,
@@ -106,9 +115,21 @@ where
         }
 
         Ok(MappingIndex {
+            index_id: index_id.to_owned(),
             index,
             map: index_map,
             inverse_map: reverse_index_map,
         })
     }
 }
+
+impl<T> PartialEq for MappingIndex<T>
+where
+    T: std::cmp::Eq + std::hash::Hash + Copy + std::str::FromStr,
+{
+    fn eq(&self, rhs: &MappingIndex<T>) -> bool {
+        self.index_id == rhs.index_id
+    }
+}
+
+impl<T> Eq for MappingIndex<T> where T: std::cmp::Eq + std::hash::Hash + Copy + std::str::FromStr {}
