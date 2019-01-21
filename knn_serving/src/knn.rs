@@ -111,14 +111,14 @@ impl Knn {
         for (i, elements) in ids.iter().enumerate() {
             let mut item: knn_response::item::Builder = list.reborrow().get(i as u32);
             item.set_id(*elements);
-            let v = index.get_item_vector(*elements).unwrap();
+            /*let v = index.get_item_vector(*elements).unwrap();
             {
                 let mut pv: capnp::primitive_list::Builder<f32> =
                     item.reborrow().init_vector(v.len() as u32);
                 for (j, value) in v.into_iter().enumerate() {
                     pv.set(j as u32, value);
                 }
-            }
+            }*/
             item.set_distance(distances[i])
         }
         Ok(())
