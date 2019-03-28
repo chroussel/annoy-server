@@ -1,5 +1,6 @@
 use annoy::{AnnoyIndex, AnnoyIndexBuilder, Distance};
 use err::Error;
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -42,13 +43,15 @@ where
     }
 
     pub fn put(&mut self, item: T, vector: &[f32]) -> Result<(), Error> {
-        if self.map.contains_key(&item) {
-            Err(Error::KeyAlreadyPresent)
-        } else {
-            let id = self.index.add_item(vector);
-            self.map.insert(item, id);
-            self.inverse_map.insert(id, item);
-            Ok(())
+        let entry = self.map.entry(item);
+        match entry {
+            Entry::Occupied(_) => Err(Error::KeyAlreadyPresent),
+            Entry::Vacant(entry) => {
+                let id = self.index.add_item(vector);
+                entry.insert(id);
+                self.inverse_map.insert(id, item);
+                Ok(())
+            }
         }
     }
 
@@ -88,6 +91,10 @@ where
 
     pub fn len(&self) -> usize {
         self.map.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.map.len() == 0
     }
 
     pub fn load<P: AsRef<Path>>(

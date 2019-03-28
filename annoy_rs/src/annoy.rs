@@ -222,10 +222,7 @@ impl AnnoyIndex {
             )
         };
 
-        (
-            result_vec.data().to_owned(),
-            distances_vec.data().to_owned(),
-        )
+        (result_vec.data(), distances_vec.data())
     }
 
     pub fn save2<P: AsRef<Path>>(&self, path: P, load_into_ram: bool) -> Result<(), err::Error> {

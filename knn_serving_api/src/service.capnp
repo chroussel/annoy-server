@@ -12,6 +12,18 @@ struct KnnRequest {
     }
 }
 
+struct KnnRequestById {
+    indexName @0 :Text;
+    algorithm @1 :Algorithm;
+    resultCount @2 :Int32;
+    searchK @3 :Int32;
+    productId @4 :Int64;
+
+    enum Algorithm {
+        annoy @0;
+    }
+}
+
 struct KnnResponse {
     resultCount @0 :Int32;
     items @1 :List(Item);
@@ -26,4 +38,5 @@ struct KnnResponse {
 interface KnnService {
     search @0 (request :KnnRequest) -> (response :KnnResponse);
     load @1(indexName :Text, indexPath :Text);
+    search2 @2 (request :KnnRequestById) -> (response :KnnResponse);
 }

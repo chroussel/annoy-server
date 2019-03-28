@@ -4,7 +4,7 @@ use capnp::message::{Builder, HeapAllocator};
 use err::Error;
 use evmap::{ReadHandle, WriteHandle};
 use futures::{future, Future};
-use knn_serving_api::service_capnp::{knn_request, knn_response};
+use knn_serving_api::service_capnp::{knn_request, knn_request_by_id, knn_response};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
@@ -55,7 +55,7 @@ impl Knn {
             path.clone().join(Knn::INDEX_FILE_NAME),
             path.clone().join(Knn::MAPPING_FILE_NAME),
             dimension,
-            Distance::Angular,
+            Distance::Euclidean,
             true,
         )?;
         info!(
@@ -100,6 +100,10 @@ impl Knn {
             .ok_or_else(|| Error::NoIndexLoaded(name.to_owned()))
     }
 
+    pub fn get_vector(index: &Arc<idmapping::MappingIndex<i64>>, id: i64) -> Option<Vec<f32>> {
+        index.get_item_vector(id)
+    }
+
     pub fn create_response_from_vectors(
         index: &Arc<idmapping::MappingIndex<i64>>,
         response_builder: knn_response::Builder,
@@ -129,6 +133,36 @@ impl Knn {
         request: knn_request::Reader,
     ) -> Box<dyn Future<Item = Builder<HeapAllocator>, Error = Error> + Send> {
         let v: Vec<f32> = request.get_vector().unwrap().iter().collect();
+        let k = request.get_search_k();
+        let n = request.get_result_count();
+        let index_copy = index.clone();
+        let res = Knn::search(index, v, k, n).and_then(move |(r, d)| {
+            let mut message = ::capnp::message::Builder::new_default();
+            {
+                let response: knn_response::Builder =
+                    message.init_root::<knn_serving_api::service_capnp::knn_response::Builder>();
+                Knn::create_response_from_vectors(
+                    &index_copy,
+                    response,
+                    r.as_slice(),
+                    d.as_slice(),
+                )?;
+            }
+            Ok(message)
+        });
+        Box::new(res)
+    }
+
+    pub fn search_id(
+        index: Arc<idmapping::MappingIndex<i64>>,
+        request: knn_request_by_id::Reader,
+    ) -> Box<dyn Future<Item = Builder<HeapAllocator>, Error = Error> + Send> {
+        let pid = request.get_product_id();
+        let v = Knn::get_vector(&index, pid);
+        if v.is_none() {
+            return Box::new(future::err(Error::NoProductVectorFound(pid)));
+        }
+        let v = v.unwrap();
         let k = request.get_search_k();
         let n = request.get_result_count();
         let index_copy = index.clone();

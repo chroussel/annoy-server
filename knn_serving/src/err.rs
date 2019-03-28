@@ -8,6 +8,7 @@ pub enum Error {
     CancelledFuture,
     IoError(::std::io::Error),
     ParsingError(String),
+    NoProductVectorFound(i64),
     IndexError(annoy_rs::err::Error),
     HyperError(hyper::Error),
     HttpError(hyper::http::Error),
@@ -69,6 +70,7 @@ impl std::fmt::Display for Error {
             Error::IndexError(err) => err.fmt(f),
             Error::HyperError(err) => err.fmt(f),
             Error::JsonParsingError(err) => err.fmt(f),
+            Error::NoProductVectorFound(value) => value.fmt(f),
         }
     }
 }

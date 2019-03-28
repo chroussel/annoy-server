@@ -12,7 +12,7 @@ pub fn start_http(knn: Knn, http_addr: SocketAddr) -> impl Future<Item = (), Err
             let k = knn.clone();
             KnnService::new(k)
         })
-        .map_err(|e| println!("server error: {}", e));
+        .map_err(|e| info!("server error: {}", e));
 
     info!("Listening on {}", http_addr);
     server

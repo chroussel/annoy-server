@@ -15,7 +15,7 @@ use futures::Stream;
 use hyper::service::Service;
 use hyper::{Body, Method, Request, Response, StatusCode};
 use knn::{Knn, KnnMapRead};
-use knn_serving_api::service_capnp::{knn_request, knn_response, knn_service};
+use knn_serving_api::service_capnp::{knn_request, knn_request_by_id, knn_response, knn_service};
 use serde_json;
 use std::collections::HashMap;
 use std::fs::File;
@@ -68,6 +68,41 @@ fn search(
     Box::new(s)
 }
 
+fn search2(
+    req: Request<Body>,
+    hashmap: KnnMapRead,
+) -> Box<Future<Item = Response<Body>, Error = Error> + Send> {
+    let body = req.into_body();
+    let s = body
+        .concat2()
+        .into_future()
+        .map_err(Error::from)
+        .and_then(|buf| {
+            debug!("Deserializing message");
+            serialize_packed::read_message(
+                &mut buf.as_ref(),
+                ::capnp::message::ReaderOptions::default(),
+            )
+            .map_err(Error::from)
+        })
+        .and_then(move |message_reader| {
+            debug!("Sending to Knn service");
+            let request = fry!(message_reader.get_root::<knn_request_by_id::Reader>());
+            let name = fry!(request.get_index_name());
+            let index = fry!(Knn::get_index2(hashmap.clone(), name));
+            debug!("Searching in index: {}", name);
+            Either::A(Knn::search_id(index, request))
+        })
+        .and_then(move |builder| {
+            debug!("Builing Response");
+            let mut buffer = Vec::with_capacity(256);
+            serialize_packed::write_message(&mut buffer, &builder)?;
+            Ok(Response::new(Body::from(buffer)))
+        });
+
+    Box::new(s)
+}
+
 pub struct KnnService {
     pub state: Knn,
 }
@@ -91,10 +126,22 @@ impl Service for KnnService {
     type Future = Box<dyn Future<Item = Response<Self::ResBody>, Error = Error> + Send>;
 
     fn call(&mut self, req: Request<Self::ReqBody>) -> Self::Future {
+        debug!("Receiving request");
         match (req.method(), req.uri().path()) {
             (&Method::POST, "/search") => {
                 let hashmap = self.state.index_read.clone();
-                let res = search(req, hashmap);
+                let res = search(req, hashmap).map_err(|r| {
+                    warn!("{:?}", r);
+                    r
+                });
+                Box::new(res)
+            }
+            (&Method::POST, "/search2") => {
+                let hashmap = self.state.index_read.clone();
+                let res = search2(req, hashmap).map_err(|r| {
+                    warn!("{:?}", r);
+                    r
+                });
                 Box::new(res)
             }
             (&Method::POST, "/load") => {
@@ -102,6 +149,10 @@ impl Service for KnnService {
                 let f = req
                     .into_body()
                     .concat2()
+                    .map_err(|r| {
+                        warn!("{:?}", r);
+                        r
+                    })
                     .map_err(Error::from)
                     .and_then(
                         move |buf| match serde_json::from_slice::<LoadRequest>(&buf) {
@@ -116,7 +167,11 @@ impl Service for KnnService {
                                 }
                             }
                         },
-                    );
+                    )
+                    .map_err(|r| {
+                        warn!("{:?}", r);
+                        r
+                    });
                 Box::new(f)
             }
             (&Method::GET, "/health") => Box::new(future::ok(
